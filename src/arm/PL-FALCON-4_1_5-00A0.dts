@@ -1,0 +1,148 @@
+/*
+ * Copyright (c) 2022 PL Germany GmbH
+ * Author: Lars Görner <lars.goerner@plasticlogic.com>
+ *
+ * <LICENSE>
+ */
+
+/dts-v1/;
+/plugin/;
+
+//#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/pinctrl/am33xx.h>
+#include <dt-bindings/board/am335x-bbw-bbb-base.h>
+
+/*
+ * Helper to show loaded overlays under: /proc/device-tree/chosen/overlays/
+ */
+&{/chosen} {
+        overlays {
+                PL-FALCON-4_1_5-00A0 = __TIMESPAMP__;
+        };
+};
+
+/*
+ * Free up the pins used by the cape from the pinmux helpers.
+ */
+&ocp {
+        // SPI
+        P9_28_pinmux { status = "disabled"; }; /* IT8951: CS (It's also connected here!!!) */
+        
+        P9_42_pinmux { status = "disabled"; }; /* IT8951: CS (SPI1_CS1) */
+        P9_29_pinmux { status = "disabled"; }; /* IT8951: MISO (SPI1_D0) */
+        P9_30_pinmux { status = "disabled"; }; /* IT8951: MOSI (SPI1_D1) */
+        P9_31_pinmux { status = "disabled"; }; /* IT8951: CLK (SPI1_SCLK) */
+
+        // IT8951
+        P8_14_pinmux { status = "disabled"; }; /* IT8951: RESET_N (gpio0[26])*/
+        P9_27_pinmux { status = "disabled"; }; /* IT8951: HOST_HRDY (gpio3[19]) */
+
+        // IT8951 I80
+        P8_11_pinmux { status = "disabled"; }; /* HOST_HD_C */
+        P8_12_pinmux { status = "disabled"; }; /* HOST_HCS# */
+        P8_27_pinmux { status = "disabled"; }; /* HOST_HD_C */
+        P8_28_pinmux { status = "disabled"; }; /* HOST_HRD# */
+        P8_29_pinmux { status = "disabled"; }; /* HOST_HWE# */
+        P8_30_pinmux { status = "disabled"; }; /* HOST_HCS# */
+        P8_31_pinmux { status = "disabled"; }; /* HOST_HDB14 */
+        P8_32_pinmux { status = "disabled"; }; /* HOST_HDB15 */
+        P8_33_pinmux { status = "disabled"; }; /* HOST_HDB13 */
+        P8_34_pinmux { status = "disabled"; }; /* HOST_HDB11 */
+        P8_35_pinmux { status = "disabled"; }; /* HOST_HDB12 */
+        P8_36_pinmux { status = "disabled"; }; /* HOST_HDB10 */
+        P8_37_pinmux { status = "disabled"; }; /* HOST_HDB8 */
+        P8_38_pinmux { status = "disabled"; }; /* HOST_HDB9 */
+        P8_39_pinmux { status = "disabled"; }; /* HOST_HDB6 */
+        P8_40_pinmux { status = "disabled"; }; /* HOST_HDB7 */
+        P8_41_pinmux { status = "disabled"; }; /* HOST_HDB4 */
+        P8_42_pinmux { status = "disabled"; }; /* HOST_HDB5 */
+        P8_43_pinmux { status = "disabled"; }; /* HOST_HDB2 */
+        P8_44_pinmux { status = "disabled"; }; /* HOST_HDB3 */
+        P8_45_pinmux { status = "disabled"; }; /* HOST_HDB0 */
+        P8_46_pinmux { status = "disabled"; }; /* HOST_HDB1 */
+
+        // TPS65185
+        P9_12_pinmux { status = "disabled"; }; /* WAKE UP (gpio1[28])*/
+        P9_13_pinmux { status = "disabled"; }: /* PWR_COM (gpio0[31]) */
+        P9_25_pinmux { status = "disabled"; }; /* PWR_UP (gpio3[21]) */
+        P9_18_pinmux { status = "disabled"; }; /* PWR_GOOD (gpio0[4]) */
+        P9_17_pinmux { status = "disabled"; }; /* FLT# (gpio0[5]) */
+        P9_19_pinmux { status = "disabled"; }; /* I2C_SCL (gpio0[13]) */
+        P9_20_pinmux { status = "disabled"; }; /* I2C_SDA (gpio0[12])*/
+
+        // Buffer
+        P9_41_pinmux { status = "disabled": }; /* 2OE */
+};
+
+&am33xx_pinmux {
+        spi1_it8951_pins: spi1_it8951_pins {
+                pinctrl-single,pins = <
+                        BONE_P9_42 (PIN_INPUT | MUX_MODE2) /* IT8951: CS (SPI1_CS1) */
+                        BONE_P9_29 (PIN_INPUT | MUX_MODE0) /* IT8951: MISO (SPI1_D0) */
+                        BONE_P9_30 (PIN_INPUT | MUX_MODE0) /* IT8951: MOSI (SPI1_D1) */
+                        BONE_P9_31 (PIN_INPUT | MUX_MODE0) /* IT8951: CLK (SPI1_SCLK) */
+                >;
+        };
+
+        falcon4_pins: falcon4_pins {
+                pinctrl-single,pins = <
+                        BONE_P8_14 (PIN_OUTPUT_PULLUP | MUX_MODE7) /* IT8951 RESET_N (gpio0[26])*/
+                        BONE_P9_27 (PIN_INPUT | MUX_MODE7) /* IT8951: HOST_HRDY (gpio3[19]) */
+
+                        BONE_P8_11 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HD_C */
+                        BONE_P8_12 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HCS# */
+                        BONE_P8_27 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HD_C */
+                        BONE_P8_28 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HRD# */
+                        BONE_P8_29 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HWE# */
+                        BONE_P8_30 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HCS# */
+                        BONE_P8_31 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HDB14 */
+                        BONE_P8_32 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HDB15 */
+                        BONE_P8_33 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HDB13 */
+                        BONE_P8_34 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HDB11 */
+                        BONE_P8_35 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HDB12 */
+                        BONE_P8_36 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HDB10 */
+                        BONE_P8_37 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HDB8 */
+                        BONE_P8_38 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HDB9 */
+                        BONE_P8_39 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HDB6 */
+                        BONE_P8_40 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HDB7 */
+                        BONE_P8_41 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HDB4 */
+                        BONE_P8_42 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HDB5 */
+                        BONE_P8_43 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HDB2 */
+                        BONE_P8_44 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HDB3 */
+                        BONE_P8_45 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HDB0 */
+                        BONE_P8_46 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HDB1 */
+
+                        BONE_P9_12 (PIN_OUTPUT_PULLUP | MUX_MODE7) /* WAKE UP (gpio1[28])*/
+                        BONE_P9_13 (PIN_INPUT | MUX_MODE7) /* PWR_COM (gpio0[31]) */
+                        BONE_P9_25 (PIN_INPUT | MUX_MODE7) /* PWR_UP (gpio3[21]) */
+                        BONE_P9_18 (PIN_INPUT | MUX_MODE7) /* PWR_GOOD (gpio0[4]) */
+                        BONE_P9_19 (PIN_INPUT_PULLUP | MUX_MODE7) /* TPS I2C_SCL */
+                        BONE_P9_20 (PIN_INPUT_PULLUP | MUX_MODE7) /* TPS I2C_SDA */
+                        BONE_P9_17 (PIN_INPUT | MUX_MODE7) /* TPS FTL# */
+
+                        BONE_P9_41 (PIN_INPUT_PULLDOWN | MUX_MODE7) /* 2OE */
+                >;
+        };
+};
+
+&spi1 {
+        #address-cells = <1>;
+        #size_cells = <0>;
+
+        status = "okay";
+        pinctrl-names = "default";
+        pinctrl-0 = <&spi1_it8951_pins>;
+
+        it8951@0 {
+                compatible = "ite,it8951";
+
+                pinctrl-names = "default";
+                pinctrl-0 = <&falcon4_pins>;
+
+                spi-max-frequency = <1000000>;
+                reg = <1>; // CS1
+
+                reset-gpio = <&gpio0 26 GPIO_ACTIVE_LOW>;
+                hrdy-gpio = <&gpio3 19 GPIO_ACTIVE_LOW>;
+        };
+};
