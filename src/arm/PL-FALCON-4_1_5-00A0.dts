@@ -1,14 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2022 PL Germany GmbH
  * Author: Lars Görner <lars.goerner@plasticlogic.com>
- *
- * <LICENSE>
  */
 
 /dts-v1/;
 /plugin/;
 
-//#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/pinctrl/am33xx.h>
 #include <dt-bindings/board/am335x-bbw-bbb-base.h>
 
