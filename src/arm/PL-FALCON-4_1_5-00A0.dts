@@ -12,6 +12,16 @@
 #include <dt-bindings/board/am335x-bbw-bbb-base.h>
 
 / {
+        compatible = "ti,beaglebone", "ti,beaglebone-black";
+        part_number = "PL-FALCON-4_1_5";
+        version = "00A0";
+
+        exclusive-use = 
+                /* Pin Header */
+                "P8.14", /* IT8951 RESET_n */
+                "P9.27"; /* IT8951 HOST_HRDY */
+
+
         /*
          * Helper to show loaded overlays under: /proc/device-tree/chosen/overlays/
         */
@@ -26,9 +36,9 @@
                 };
         };
 
-/*
- * Free up the pins used by the cape from the pinmux helpers.
- */
+        /*
+        * Free up the pins used by the cape from the pinmux helpers.
+        */
         fragment@1 {
                 target = <&ocp>;
                 __overlay__ {
@@ -95,10 +105,15 @@
                                 >;
                         };
 
-                        falcon4_pins: pinmux_falcon4_pins {
+                        gpio_it8951_pins: pinmux_gpio_it8951_pins {
                                 pinctrl-single,pins = <
                                         BONE_P8_14 (PIN_OUTPUT_PULLUP | MUX_MODE7) /* IT8951 RESET_N (gpio0[26])*/
                                         BONE_P9_27 (PIN_INPUT | MUX_MODE7) /* IT8951: HOST_HRDY (gpio3[19]) */
+                                >;
+                        }
+
+                        falcon4_pins: pinmux_falcon4_pins {
+                                pinctrl-single,pins = <
 
                                         BONE_P8_11 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HD_C */
                                         BONE_P8_12 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HCS# */
@@ -138,6 +153,24 @@
         };
 
         fragment@3 {
+                target = "/";
+                __overlay__ {
+                        falcon {
+                                pinctrl-names = "default";
+                                pinctrl-0 = <&falcon4_pins>;
+
+                                compatible = "falcon";
+
+                                wakeup@1 {
+                                        label = "pmic_wakeup";
+                                        gpios = <&gpio1 28 GPIO_ACTIVE_HIGH>;
+                                        default-state = "on";
+                                }
+                        }
+                };
+        };
+
+        fragment@4 {
                 target = <&spi1>;
                 __overlay__ {
                         status = "okay";
@@ -149,7 +182,7 @@
                 };
         };
 
-        fragment@4 {
+        fragment@5 {
                 target = <&spi1>;
                 
                 __overlay__ {
@@ -159,7 +192,7 @@
                         epdc: it8951@1 {
                                 compatible = "ite,it8951";
                                 pinctrl-names = "default";
-                                pinctrl-0 = <&falcon4_pins>;
+                                pinctrl-0 = <&gpio_it8951_pins>;
                                 spi-max-frequency = <1000000>;
                                 reg = <0x1>; /* CS1 */
                                 reset-gpio = <&gpio0 26 GPIO_ACTIVE_LOW>;
