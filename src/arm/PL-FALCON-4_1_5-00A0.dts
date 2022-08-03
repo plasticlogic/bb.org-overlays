@@ -16,11 +16,6 @@
         part_number = "PL-FALCON-4_1_5";
         version = "00A0";
 
-        exclusive-use = 
-                /* Pin Header */
-                "P8.14", /* IT8951 RESET_n */
-                "P9.27"; /* IT8951 HOST_HRDY */
-
 
         /*
          * Helper to show loaded overlays under: /proc/device-tree/chosen/overlays/
@@ -110,7 +105,7 @@
                                         BONE_P8_14 (PIN_OUTPUT_PULLUP | MUX_MODE7) /* IT8951 RESET_N (gpio0[26])*/
                                         BONE_P9_27 (PIN_INPUT | MUX_MODE7) /* IT8951: HOST_HRDY (gpio3[19]) */
                                 >;
-                        }
+                        };
 
                         falcon4_pins: pinmux_falcon4_pins {
                                 pinctrl-single,pins = <
@@ -146,27 +141,9 @@
                                         BONE_P9_20 (PIN_INPUT_PULLUP | MUX_MODE7) /* TPS I2C_SDA */
                                         BONE_P9_17 (PIN_INPUT | MUX_MODE7) /* TPS FTL# */
 
-                                        BONE_P9_41 (PIN_INPUT_PULLDOWN | MUX_MODE7) /* 2OE */
+                                        BONE_P9_41 (PIN_INPUT_PULLDOWN | MUX_MODE7) /* 2OE (gpio3[20]) */
                                 >;
                         };
-                };
-        };
-
-        fragment@3 {
-                target = "/";
-                __overlay__ {
-                        falcon {
-                                pinctrl-names = "default";
-                                pinctrl-0 = <&falcon4_pins>;
-
-                                compatible = "falcon";
-
-                                wakeup@1 {
-                                        label = "pmic_wakeup";
-                                        gpios = <&gpio1 28 GPIO_ACTIVE_HIGH>;
-                                        default-state = "on";
-                                }
-                        }
                 };
         };
 
@@ -177,8 +154,8 @@
                         pinctrl-names = "default";
                         pinctrl-0 = <&spi1_it8951_pins>;
 
-                        channel1@0 { status = "disabled"; };
-                        channel1@1 { status = "disabled"; };
+                        //channel1@0 { status = "disabled"; };
+                        //channel1@1 { status = "disabled"; };
                 };
         };
 
@@ -195,8 +172,13 @@
                                 pinctrl-0 = <&gpio_it8951_pins>;
                                 spi-max-frequency = <1000000>;
                                 reg = <0x1>; /* CS1 */
-                                reset-gpio = <&gpio0 26 GPIO_ACTIVE_LOW>;
-                                hrdy-gpio = <&gpio3 19 GPIO_ACTIVE_LOW>;
+                                reset-gpios = <&gpio0 26 GPIO_ACTIVE_LOW>;
+                                hrdy-gpios = <&gpio3 19 GPIO_ACTIVE_LOW>;
+                                pmic_wakeup-gpios = <&gpio1 28 GPIO_ACTIVE_HIGH>;
+                                pmic_pwr_com-gpios = <&gpio0 31 GPIO_ACTIVE_HIGH>;
+                                pmic_pwr_up-gpios = <&gpio3 21 GPIO_ACTIVE_HIGH>;
+                                pmic_pwr_good-gpios = <&gpio0 4 GPIO_ACTIVE_HIGH>;
+                                oe2-gpios = <&gpio3 20 GPIO_ACTIVE_HIGH>;
                         };
                 };
         };
