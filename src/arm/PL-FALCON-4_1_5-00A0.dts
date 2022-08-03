@@ -161,7 +161,6 @@
 
         fragment@5 {
                 target = <&spi1>;
-                
                 __overlay__ {
                         #address-cells = <1>;
                         #size_cells = <0>;
