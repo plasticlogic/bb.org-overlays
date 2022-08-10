@@ -1,0 +1,59 @@
+/*
+* device tree overlay specific for GPIOs required for Ruddock V2.0 board from PlasticLogic
+*
+*/
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "ti,beaglebone", "ti,beaglebone-black";
+
+    /* identification */
+    part-number = "BB-PL-RUDDOCK";
+    version = "00A0";
+
+    /* state the resources this cape uses */
+    exclusive-use =
+        /* the pin header uses */
+        "P9.17",    /* spi0_cs0 */
+		"P9.23",    /* HD/C */
+		/*"P9.24",*/    /* PMIC_POK */
+		"P9.25",    /* HIRQ - Achtung schon benutzt, check*/ 
+		"P9.26",    /* HVSW_CTRL */
+		"P9.27",    /* HRDY */
+		"P8.11",    /* RUDDOCK-RESERVE-2*/
+		"P8.14",	/* RUDDOCK-RESET */ 
+		"P8.15";    /* RUDDOCK-5V-EN*/
+        /* the hardware ip uses */
+		
+		
+    fragment@0 {
+        target = <&am33xx_pinmux>;
+        __overlay__ {
+            bb_ruddock_gpio_pins: pinmux_bb_ruddock_gpio_pins {
+                pinctrl-single,pins = <
+                    0x15c 0x17   /* spi0_cs0, OUTPUT_PULLUP | MODE7 */
+					
+					0x03c 0x0f   /* RUDDOCK_5V_EN,  PL_GPIO_OUTPUT  */					
+					0x1ac 0x37	 /* RUDDOCK_HIRQ,    		PL_GPIO_INPUT  | PL_GPIO_PU     */
+					0x1a4 0x2f   /* RUDDOCK_HRDY,    		PL_GPIO_INPUT  | PL_GPIO_INIT_H */  
+					0x044 0x0f	 /* RUDDOCK_HDC,     		PL_GPIO_OUTPUT | PL_GPIO_INIT_H */
+					0x028 0x0f	 /* RUDDOCK_RESET,   		PL_GPIO_OUTPUT | PL_GPIO_INIT_H */
+					0x34  0x0f 	 /* RUDDOCK_RESERVE_2,   	PL_GPIO_OUTPUT | PL_GPIO_INIT_H */		
+                >;
+            };
+        };
+    };
+	
+	fragment@1 {
+		target = <&ocp>;
+		__overlay__ {
+			test_helper: helper {
+				compatible = "bone-pinmux-helper";
+				pinctrl-names = "default";
+				pinctrl-0 = <&bb_ruddock_gpio_pins>;
+				status = "okay";
+			};
+		};
+	};
+};

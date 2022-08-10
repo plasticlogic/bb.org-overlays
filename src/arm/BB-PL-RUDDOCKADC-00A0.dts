@@ -1,0 +1,96 @@
+/*
+* device tree overlay specific for GPIOs and ADCs required for Ruddock V2.0 board from PlasticLogic
+*
+*/
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "ti,beaglebone", "ti,beaglebone-black";
+
+    /* identification */
+    part-number = "BB-PL-RUDDOCKADC";
+    version = "00A0";
+
+    /* state the resources this cape uses */
+    exclusive-use =
+        /* the pin header uses */
+        "P9.17",    /* spi0_cs0 */
+		"P9.23",    /* HD/C */
+		/*"P9.24",*/    /* PMIC_POK */
+		"P9.25",    /* HIRQ - Achtung schon benutzt, check*/ 
+		"P9.26",    /* HVSW_CTRL */
+		"P9.27",    /* HRDY */
+		"P8.11",    /* RUDDOCK-RESERVE-2*/
+		"P8.14",	/* RUDDOCK-RESET */ 
+		"P8.15",    /* RUDDOCK-5V-EN*/
+		"P9.39",	/* AIN0 */
+		"P9.40",	/* AIN1 */
+		"P9.37",	/* AIN2 */
+		"P9.38",	/* AIN3 */
+		"P9.33",	/* AIN4 */
+		"P9.36",	/* AIN5 */
+		"P9.35",	/* AIN6 */
+		"P9.12",	/* VCC_3V3 */
+		/* the hardware IP uses */
+		"tscadc";
+		
+		
+    fragment@0 {
+        target = <&am33xx_pinmux>;
+        __overlay__ {
+            bb_ruddock_gpio_pins: pinmux_bb_ruddock_gpio_pins {
+                pinctrl-single,pins = <
+                    0x15c 0x17   /* spi0_cs0, OUTPUT_PULLUP | MODE7 */					
+					0x03c 0x0f   /* RUDDOCK_5V_EN,  PL_GPIO_OUTPUT  */					
+					0x1ac 0x37	 /* RUDDOCK_HIRQ,    		PL_GPIO_INPUT  | PL_GPIO_PU     */
+					0x1a4 0x2f   /* RUDDOCK_HRDY,    		PL_GPIO_INPUT  | PL_GPIO_INIT_H */  
+					0x044 0x0f	 /* RUDDOCK_HDC,     		PL_GPIO_OUTPUT | PL_GPIO_INIT_H */
+					0x028 0x0f	 /* RUDDOCK_RESET,   		PL_GPIO_OUTPUT | PL_GPIO_INIT_H */
+					0x034 0x0f 	 /* RUDDOCK_RESERVE_2,   	PL_GPIO_OUTPUT | PL_GPIO_INIT_H */	
+					0x078 0x0f	 /* VCC_3V3 */
+					
+                >;
+            };
+        };
+    };
+	
+	fragment@1 {
+		target = <&ocp>;
+		__overlay__ {
+			
+			/* avoid stupid warning */
+			#address-cells = <1>;
+			#size-cells = <1>;
+			
+			tscadc {
+				compatible = "ti,ti-tscadc";
+				reg = <0x44e0d000 0x1000>;
+
+				interrupt-parent = <&intc>;
+				interrupts = <16>;
+				ti,hwmods = "adc_tsc";
+				status = "okay";
+
+				adc {
+					ti,adc-channels = <0 1 2 3 4 5 6 7>;
+				};
+			};
+			
+			test_helper: helper {
+				compatible = "bone-iio-helper";
+				vsense-name  = "AIN0", "AIN1", "AIN2", "AIN3", "AIN4", "AIN5", "AIN6", "AIN7";
+				vsense-scale = <100     100     100     100     100     100     100     100>;
+				status = "okay";
+			};
+			
+			/* a second helper node is necessary */		
+			test_helper2: helper2 {
+				compatible = "bone-pinmux-helper";
+				pinctrl-names = "default";
+				pinctrl-0 = <&bb_ruddock_gpio_pins>;
+				status = "okay";
+			};
+		};
+	};	
+};
