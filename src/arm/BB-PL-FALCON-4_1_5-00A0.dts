@@ -33,7 +33,9 @@
                 target = <&ocp>;
                 __overlay__ {
                         // SPI
-                        P9_28_pinmux { status = "disabled"; }; /* IT8951: CS (It's also connected here!!!) */
+                        /* P9_28_pinmux { status = "disabled"; }; */ /* NVM_CS */
+			P9_16_pinmux { status = "disabled"; }; /* FW_NVM_CS */
+			P9_14_pinmux { status = "disabled"; }; /* ITE_CS */
 
                         // IT8951
                         P8_14_pinmux { status = "disabled"; }; /* IT8951: RESET_N (gpio0[26])*/
@@ -69,8 +71,8 @@
                         P9_25_pinmux { status = "disabled"; }; /* PWR_UP (gpio3[21]) */
                         P9_18_pinmux { status = "disabled"; }; /* PWR_GOOD (gpio0[4]) */
                         P9_17_pinmux { status = "disabled"; }; /* FLT# (gpio0[5]) */
-                        P9_19_pinmux { status = "disabled"; }; /* I2C_SCL (gpio0[13]) */
-                        P9_20_pinmux { status = "disabled"; }; /* I2C_SDA (gpio0[12])*/
+                        /* P9_19_pinmux { status = "disabled"; }; */ /* I2C_SCL (gpio0[13]) */
+                        /* P9_20_pinmux { status = "disabled"; }; */ /* I2C_SDA (gpio0[12])*/
 
                         // Buffer
                         P9_41_pinmux { status = "disabled"; }; /* 2OE */
@@ -81,16 +83,15 @@
                 target = <&am33xx_pinmux>;
 
                 __overlay__ {
-                        gpio_it8951_pins: pinmux_gpio_it8951_pins {
+                        falcon4_pins: pinmux_falcon_pins {
                                 pinctrl-single,pins = <
+					/* BONE_P9_28 (PIN_OUTPUT_PULLUP | MUX_MODE7) */ /* NVM_CS */
+					BONE_P9_16 (PIN_OUTPUT_PULLUP | MUX_MODE7) /* FW_NVM_CS */
+					BONE_P9_14 (PIN_OUTPUT_PULLUP | MUX_MODE7) /* ITE_CS */
+
                                         BONE_P8_14 (PIN_OUTPUT_PULLUP | MUX_MODE7) /* IT8951 RESET_N (gpio0[26])*/
                                         BONE_P9_27 (PIN_INPUT | MUX_MODE7) /* IT8951: HOST_HRDY (gpio3[19]) */
-                                >;
-                        };
-
-                        falcon4_pins: pinmux_falcon4_pins {
-                                pinctrl-single,pins = <
-
+					
                                         BONE_P8_11 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HD_C */
                                         BONE_P8_12 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HCS# */
                                         BONE_P8_27 (PIN_INPUT_PULLUP | MUX_MODE7) /* HOST_HD_C */
@@ -118,8 +119,8 @@
                                         BONE_P9_13 (PIN_INPUT | MUX_MODE7) /* PWR_COM (gpio0[31]) */
                                         BONE_P9_25 (PIN_INPUT | MUX_MODE7) /* PWR_UP (gpio3[21]) */
                                         BONE_P9_18 (PIN_INPUT | MUX_MODE7) /* PWR_GOOD (gpio0[4]) */
-                                        BONE_P9_19 (PIN_INPUT_PULLUP | MUX_MODE7) /* TPS I2C_SCL */
-                                        BONE_P9_20 (PIN_INPUT_PULLUP | MUX_MODE7) /* TPS I2C_SDA */
+                                        /* BONE_P9_19 (PIN_INPUT_PULLUP | MUX_MODE7) */ /* TPS I2C_SCL */
+                                        /* BONE_P9_20 (PIN_INPUT_PULLUP | MUX_MODE7) */ /* TPS I2C_SDA */
                                         BONE_P9_17 (PIN_INPUT | MUX_MODE7) /* TPS FTL# */
 
                                         BONE_P9_41 (PIN_INPUT_PULLDOWN | MUX_MODE7) /* 2OE (gpio3[20]) */
@@ -129,61 +130,56 @@
         };
 
         fragment@3 {
-                target = <&ocp>;
+                target-path = "/";
                 __overlay__ {
-                        falcon {
-                                compatible = "falcon4";
-                                status = "okay";
+                        leds {
                                 pinctrl-names = "default";
                                 pinctrl-0 = <&falcon4_pins>;
 
+				compatible = "gpio-leds";
+
+				/*
                                 nvm_cs {
-                                        gpio-name = "nvm_cs";
-                                        gpio = <&gpio3 17 GPIO_ACTIVE_HIGH>;
-                                        output;
-                                        init-high;
+                                        label = "dsp_nvm_cs";
+                                        gpios = <&gpio3 17 GPIO_ACTIVE_HIGH>;
+					default-state = "on";
                                 };
+				*/
 
                                 fw_nvm_cs {
-                                        gpio-name = "fw_nvm_cs";
-                                        gpio = <&gpio1 19 GPIO_ACTIVE_HIGH>;
-                                        output;
-                                        init-high;
+                                        label = "fw_nvm_cs";
+                                        gpios = <&gpio1 19 GPIO_ACTIVE_HIGH>;
+                                        default-state = "on";
                                 };
 
-                                spi_cs_ite {
-                                        gpio-name = "spi_cs_ite";
-                                        gpio = <&gpio1 18 GPIO_ACTIVE_HIGH>;
-                                        output;
-                                        init-high;
+                                ite_cs {
+                                        label = "ite_cs";
+                                        gpios = <&gpio1 18 GPIO_ACTIVE_HIGH>;
+                                        default-state = "on";
                                 };
 
                                 pwr_bst_en {
-                                        gpio-name = "pwr_bst_en";
-                                        gpio = <&gpio1 12 GPIO_ACTIVE_HIGH>;
-                                        output;
-                                        init-low;
+                                        label = "pwr_bst_en";
+                                        gpios = <&gpio1 12 GPIO_ACTIVE_HIGH>;
+                                        default-state = "off";
                                 };
 
                                 buf_out_en {
-                                        gpio-name = "buf_out_en";
-                                        gpio = <&gpio0 20 GPIO_ACTIVE_HIGH>;
-                                        output;
-                                        init-low;
+                                        label = "buf_out_en";
+                                        gpios = <&gpio0 20 GPIO_ACTIVE_HIGH>;
+                                        default-state = "off";
                                 };
 
                                 pmic_wakeup {
-                                        gpio-name = "pmic_wakeup";
-                                        gpio = <&gpio1 28 GPIO_ACTIVE_HIGH>;
-                                        output;
-                                        init-high;
+                                        label = "pmic_wakeup";
+                                        gpios = <&gpio1 28 GPIO_ACTIVE_HIGH>;
+                                        default-state = "on";
                                 };
 
                                 epdc_reset {
-                                        gpio-name = "epdc_reset";
-                                        gpio = <&gpio0 26 GPIO_ACTIVE_HIGH>;
-                                        output;
-                                        init-high;
+                                        label = "epdc_reset";
+                                        gpios = <&gpio0 26 GPIO_ACTIVE_HIGH>;
+                                        default-state = "on";
                                 };
                         };
                 };
