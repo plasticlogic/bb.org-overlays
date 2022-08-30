@@ -12,11 +12,6 @@
 #include <dt-bindings/board/am335x-bbw-bbb-base.h>
 
 / {
-        compatible = "ti,beaglebone", "ti,beaglebone-black";
-        part_number = "PL-FALCON-4_1_5";
-        version = "00A0";
-
-
         /*
          * Helper to show loaded overlays under: /proc/device-tree/chosen/overlays/
         */
@@ -39,11 +34,6 @@
                 __overlay__ {
                         // SPI
                         P9_28_pinmux { status = "disabled"; }; /* IT8951: CS (It's also connected here!!!) */
-        
-                        P9_42_pinmux { status = "disabled"; }; /* IT8951: CS (SPI1_CS1) */
-                        P9_29_pinmux { status = "disabled"; }; /* IT8951: MISO (SPI1_D0) */
-                        P9_30_pinmux { status = "disabled"; }; /* IT8951: MOSI (SPI1_D1) */
-                        P9_31_pinmux { status = "disabled"; }; /* IT8951: CLK (SPI1_SCLK) */
 
                         // IT8951
                         P8_14_pinmux { status = "disabled"; }; /* IT8951: RESET_N (gpio0[26])*/
@@ -91,15 +81,6 @@
                 target = <&am33xx_pinmux>;
 
                 __overlay__ {
-                        spi1_it8951_pins: pinmux_spi1_it8951_pins {
-                                pinctrl-single,pins = <
-                                        BONE_P9_42 (PIN_INPUT | MUX_MODE2) /* IT8951: CS (SPI1_CS1) */
-                                        BONE_P9_29 (PIN_INPUT | MUX_MODE0) /* IT8951: MISO (SPI1_D0) */
-                                        BONE_P9_30 (PIN_INPUT | MUX_MODE0) /* IT8951: MOSI (SPI1_D1) */
-                                        BONE_P9_31 (PIN_INPUT | MUX_MODE0) /* IT8951: CLK (SPI1_SCLK) */
-                                >;
-                        };
-
                         gpio_it8951_pins: pinmux_gpio_it8951_pins {
                                 pinctrl-single,pins = <
                                         BONE_P8_14 (PIN_OUTPUT_PULLUP | MUX_MODE7) /* IT8951 RESET_N (gpio0[26])*/
@@ -147,37 +128,63 @@
                 };
         };
 
-        fragment@4 {
-                target = <&spi1>;
+        fragment@3 {
+                target = <&ocp>;
                 __overlay__ {
-                        status = "okay";
-                        pinctrl-names = "default";
-                        pinctrl-0 = <&spi1_it8951_pins>;
-
-                        //channel1@0 { status = "disabled"; };
-                        //channel1@1 { status = "disabled"; };
-                };
-        };
-
-        fragment@5 {
-                target = <&spi1>;
-                __overlay__ {
-                        #address-cells = <1>;
-                        #size_cells = <0>;
-
-                        epdc: it8951@1 {
-                                compatible = "ite,it8951";
+                        falcon {
+                                compatible = "falcon4";
+                                status = "okay";
                                 pinctrl-names = "default";
-                                pinctrl-0 = <&gpio_it8951_pins>;
-                                spi-max-frequency = <1000000>;
-                                reg = <0x1>; /* CS1 */
-                                reset-gpios = <&gpio0 26 GPIO_ACTIVE_LOW>;
-                                hrdy-gpios = <&gpio3 19 GPIO_ACTIVE_LOW>;
-                                pmic_wakeup-gpios = <&gpio1 28 GPIO_ACTIVE_HIGH>;
-                                pmic_pwr_com-gpios = <&gpio0 31 GPIO_ACTIVE_HIGH>;
-                                pmic_pwr_up-gpios = <&gpio3 21 GPIO_ACTIVE_HIGH>;
-                                pmic_pwr_good-gpios = <&gpio0 4 GPIO_ACTIVE_HIGH>;
-                                oe2-gpios = <&gpio3 20 GPIO_ACTIVE_HIGH>;
+                                pinctrl-0 = <&falcon4_pins>;
+
+                                nvm_cs {
+                                        gpio-name = "nvm_cs";
+                                        gpio = <&gpio3 17 GPIO_ACTIVE_HIGH>;
+                                        output;
+                                        init-high;
+                                };
+
+                                fw_nvm_cs {
+                                        gpio-name = "fw_nvm_cs";
+                                        gpio = <&gpio1 19 GPIO_ACTIVE_HIGH>;
+                                        output;
+                                        init-high;
+                                };
+
+                                spi_cs_ite {
+                                        gpio-name = "spi_cs_ite";
+                                        gpio = <&gpio1 18 GPIO_ACTIVE_HIGH>;
+                                        output;
+                                        init-high;
+                                };
+
+                                pwr_bst_en {
+                                        gpio-name = "pwr_bst_en";
+                                        gpio = <&gpio1 12 GPIO_ACTIVE_HIGH>;
+                                        output;
+                                        init-low;
+                                };
+
+                                buf_out_en {
+                                        gpio-name = "buf_out_en";
+                                        gpio = <&gpio0 20 GPIO_ACTIVE_HIGH>;
+                                        output;
+                                        init-low;
+                                };
+
+                                pmic_wakeup {
+                                        gpio-name = "pmic_wakeup";
+                                        gpio = <&gpio1 28 GPIO_ACTIVE_HIGH>;
+                                        output;
+                                        init-high;
+                                };
+
+                                epdc_reset {
+                                        gpio-name = "epdc_reset";
+                                        gpio = <&gpio0 26 GPIO_ACTIVE_HIGH>;
+                                        output;
+                                        init-high;
+                                };
                         };
                 };
         };
